@@ -60,12 +60,21 @@ public class MaxxairAuth {
 
        
         try {
-            if (serverProxy.UserExists(user)) {
-                bool accountEnabled = !Boolean.Parse(serverProxy.GetUserProperty(user, "disabled-print")); //Finds if User Account is disabled.
-                if (accountEnabled)
-                {
-                    // This user exists, can bill student                                   
-                    if(Boolean.Parse(serverProxy.GetUserProperty(user, "restricted"))){
+            //Test to see if User Exists
+            if (!serverProxy.UserExists(user))
+            {
+                // User does not exist! Explain and exit returning 1
+                Console.WriteLine("I'm sorry but this user does not exist in the chargeback system. Please ensure you are registered for printing.");
+                return 1;
+            }
+            //Test to see if user printing is disabled
+            if (Boolean.Parse(serverProxy.GetUserProperty(user, "disabled-print")))
+            {
+                 Console.WriteLine("I'm sorry but your print account is disabled. Please ensure you are registered for printing.");
+                 return 2;
+            }                                  
+            //Test to see if user can afford the print
+            if(Boolean.Parse(serverProxy.GetUserProperty(user, "restricted"))){
                     // Account is restricted, make sure that it has money for the print                 
                     double printerCost = serverProxy.GetPrinterCostSimple(printerServer, printerName); // Get the user's account balance to see if they are able to afford the print
                         if (serverProxy.AdjustUserAccountBalanceIfAvailable(user, -1 * printerCost, "Test Charge for " + printerServer + "\\" + printerName, ""))
@@ -78,22 +87,11 @@ public class MaxxairAuth {
                             return 3;
                         }
                     }
-                    //Charge User for the Print Job
-                    string printjob = "user=" + user + ",server=" + server + ",printer=" + printerName + ",client-machine=" + computerName + ",server=" + printerServer; // This assembles a string of information to submit the printjob 
-                    serverProxy.ProcessJob(printjob); // Sends the formatted print job
-                    return 0; // job was charged. Success!
-                }
-                else
-                {
-                    // User account was locked! Explain and exit returning 2
-                    Console.WriteLine("I'm sorry but your print account is disabled. Please ensure you are registered for printing.");
-                    return 2;
-                }
-            } else {
-                // User does not exist! Explain and exit returning 1
-                Console.WriteLine("I'm sorry but this user does not exist in the chargeback system. Please ensure you are registered for printing.");
-                return 1;
-            }
+              //Charge User for the Print Job
+              string printjob = "user=" + user + ",server=" + server + ",printer=" + printerName + ",client-machine=" + computerName + ",server=" + printerServer; // This assembles a string of information to submit the printjob 
+              serverProxy.ProcessJob(printjob); // Sends the formatted print job
+              return 0; // job was charged. Success!
+                
         } catch (XmlRpcFaultException fex) {
             Console.WriteLine("Fault: {0}, {1}", fex.FaultCode, fex.FaultString);
             return -1;
