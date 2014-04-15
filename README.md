@@ -21,7 +21,7 @@ plugin to track a KNK Max Air cutter as though it was a printer in PaperCut™.
   * Windows Server 2008 R2™
   * PaperCut Application Server Virtual Queue Configuration
 * Configuration of the Machine attached to the KNK MAXX AIR
-* The Authentication Plugin
+  * The Authentication Plugin
 
  
 ## Introduction
@@ -104,24 +104,25 @@ to create a Virtual Print Queue for the authentication application to use.
 ### Windows Server 2008 R2™
 Open the Print Management Console and navigate to the printers section.
 
-![](/image/p1.png)
+![](/images/p1.png)
 
 Select More Actions and hit Add Printer…
 
-![](/image/p2.png)
+![](/images/p2.png)
 
 Add a printer using an existing port, using a port that is not actually in use by any other printer.
 
-![](/image/p3.png)
+![](/images/p3.png)
 
 Use and existing driver to save on time, as the selection is arbitrary.
 
-![](/image/p4.png)
+![](/images/p4.png)
 
 Finally enter a name for the print queue following whatever convention has been decided on for your equipment. Uncheck share this printer, as this queue will not be used by any actual end users. Click next to see the confirmation page and verify that all details are correct. Then click next button and the finish button to complete the installation.
 
 ### PaperCut Application Server Virtual Queue Configuration
 The new queue that was created on the print server should now have popped up onto the application server. If it has not, send a test page to the queue on the print server to trigger the print monitor software to create the queue. Once PaperCut™ has created the queue delete the one on the actual print server, leaving the queue in PaperCut™ to serve as the printer users will be tracked with. Next set the price on the queue. The plugin was designed to implement simple printing, charging a flat rate per cut, and does not return information about the job that can be used for costing each individual job. This plugin could always be extended to do just that.
+
 Next, generate a complex API Key for the web services. The password for the built in administrator account can be used instead, however it is better practice to use an API key to utilize the system, as using the administrator password over an XML-RPC transmission could lead to a compromise of the system. Once you have a secure key (Generating an SHA1 Hash is fine) go to Options -> Config editor (advanced). Use the quick find to locate the “auth.webservices.auth-token”, updating its value with the newly generated key.  Last go to Options -> General -> Security and set the Allowed XML Web Services callers to include the IP address of the client machine that will be reporting jobs. This prevents commands being issues from unauthorized computers even in the event that they discover a valid API key or administrator password.
 
 ## Configuration of the Machine attached to the KNK MAXX AIR
